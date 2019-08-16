@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+  <title>API Lab</title>
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous">
+  </script>
+</head>
+
+<body id='bodyId'>
+  <form class="" action="index.html" method="post">
+    <input name="userName" id='userName' type="text" onkeyup="receiveData(this)"></input>
+    <button type="button" onclick="getUserName()">Submit</button>
+  </form>
+
+
+  <script type="text/javascript">
+    var aUser = null;
+    var userPosts = null;
+    var userAlbums = null;
+
+    //------------ dataService.js ------------
+    function getUserByName(username) {
+      return new Promise(function(resolve, reject) {
+        $.get('http://jsonplaceholder.typicode.com/users?username=' + username, function(users) {
+          console.log(users);
+          if (users.length) {
+            aUser = users[0];
+            resolve(aUser);
+
+          } else {
+            reject('incorrect login, please try again');
+          }
+        });
+      })
+    }
+
+
+
+    function getPostsByUser(user) {
+      return new Promise(function(resolve, reject) {
+        $.get('http://jsonplaceholder.typicode.com/posts?userId=' + user.id, function(posts) {
+          userPosts = posts;
+          resolve(posts);
+
+        });
+      })
+    }
+
+    function getAlbumsByUser(user) {
+      return new Promise(function(resolve, reject) {
+        $.get('http://jsonplaceholder.typicode.com/albums?userId=' + aUser.id, function(albums) {
+          userAlbums = albums;
+          resolve(albums);
+        });
+      })
+    }
+
+    //------------ interface.js ------------
+
+    function render() {
+      console.log('here are the albums ' + userAlbums);
+      //render the posts data
+      // console.log('im here' + userHome.name);
+      //
+      // let para = document.createElement('p');
+      // let node = document.createTextNode('hi ' + userHome.name);
+      // para.appendChild(node);
+      // let element = document.getElementById('bodyId');
+      // element.appendChild(para);
+      $('body').append(
+        `<div>
+        <h1>Hello ${aUser.name}</h1>
+        </div>`
+      );
+      var newLi = null;
+      var newUl = document.createElement('ul');
+      var div = document.querySelector('div');
+      var h2 = document.createElement('h2');
+      h2.innerHTML = 'Here Is Your List Of Posts';
+      div.append(h2);
+      div.append(newUl);
+      var h2Albums = document.createElement('h2');
+      h2Albums.innerHTML = 'Here Is Your List Of Albums';
+      div.append(h2Albums);
+      var newUlAlbums = document.createElement('ul');
+      div.append(newUlAlbums);
+
+
+      for (let i = 0; i < userPosts.length; i++) {
+        newLi = document.createElement('li');
+        newLi.innerHTML = `<li>${userPosts[i].title}</li>`
+        newUl.appendChild(newLi);
+      }
+
+
+
+
+      for (let i = 0; i < userAlbums.length; i++) {
+        newLi = document.createElement('li');
+        newLi.innerHTML = `<li>${userAlbums[i].title}</li>`
+        newUlAlbums.appendChild(newLi);
+
+      }
+
+
+    }
+
+    function handleError(temp) {
+      alert(temp);
+    }
+
+    // function showUserItems(enteredName){
+    // getUserByName(enteredName)
+    //  // .then(getPostsByUser)
+    //  .then(render);
+    // }
+    //
+    // showUserItems();
+
+
+
+    // p.then(function(data){
+    // 	//console.log(data);
+    // })
+
+
+    let data = {};
+
+    function receiveData(c) {
+      data[c.name] = c.value;
+    }
+
+    function getUserName() {
+      let userName = document.getElementById('userName');
+      console.log(data.userName);
+      getUserByName(data.userName)
+        .catch(handleError)
+        .then(getPostsByUser)
+        .then(getAlbumsByUser)
+        .then(render);
+    }
+  </script>
+</body>
+
+</html>
